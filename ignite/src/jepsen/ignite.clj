@@ -111,11 +111,11 @@
   "Creates a server config file and uploads it to the given node."
   (c/exec :echo (configure addresses false pds) :> (str server-dir "server-ignite-" node ".xml")))
 
-(defn configure-client [addresses pds]
+(defn configure-client [addresses]
   "Creates a client config file."
   (let [config-file (File/createTempFile "jepsen-ignite-config" ".xml")
         config-file-path (.getCanonicalPath config-file)]
-    (spit config-file-path (configure addresses true pds))
+    (spit config-file-path (configure addresses true "false"))
      config-file))
 
 (defn db
@@ -171,7 +171,7 @@
        (gen/nemesis
         (gen/seq (cycle [(gen/sleep 5)
           {:type :info, :f :start}
-          (gen/sleep 1)
+          (gen/sleep 3)
           {:type :info, :f :stop}])))
        (gen/time-limit time-limit)))
 
