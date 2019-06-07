@@ -76,7 +76,7 @@
             </bean>
         </property>
 
-        <property name="autoActivationEnabled" value="false"/>
+        <property name="autoActivationEnabled" value="true"/>
 
         <!-- Enabling Apache Ignite native persistence. -->
         <property name="dataStorageConfiguration">
@@ -84,10 +84,17 @@
                 <property name="defaultDataRegionConfiguration">
                     <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
                         <property name="persistenceEnabled" value="##pds##"/>
+                        <property name="metricsEnabled" value="true"/>
+                        <property name="metricsRateTimeInterval" value="1000"/>
                     </bean>
                 </property>
+                <property name="pageSize" value="#{4*1024}"/>
+                <property name="checkpointFrequency" value="60000"/>
                 <property name="walMode" value="LOG_ONLY"/>
+                <property name="metricsEnabled" value="true"/>
+                <property name="metricsRateTimeInterval" value="1000"/>
                 <property name="walCompactionEnabled" value="true"/>
+                <property name="concurrencyLevel" value="560"/>
             </bean>
         </property>
     </bean>

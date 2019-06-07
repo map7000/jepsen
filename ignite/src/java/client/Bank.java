@@ -47,19 +47,20 @@ public class Bank extends Client {
         // Starting the transaction and setting the timeout in order to defreeze the transaction if it gets into
         // the deadlock and to trigger the deadlock detection to troubleshoot the issue.
         // 10 (txSize) is an approximate number of entries participating in transaction.
-        Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10);
+        int amount;
 
-        try {
+ 	try (Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10)){
             int fromAccount = accountCache.get(fromAccountId);
             int toAccount = accountCache.get(toAccountId);
 
             // No money in the account
             if (fromAccount < 1) {
                 tx.commit();
+                tx.close();
                 return 0;
             }
 
-            int amount = getRandomNumberInRange(1, fromAccount);
+            amount = getRandomNumberInRange(1, fromAccount);
 
             // Withdraw from account
             fromAccount = fromAccount - amount;
@@ -72,11 +73,11 @@ public class Bank extends Client {
             accountCache.put(toAccountId, toAccount);
 
             tx.commit();
-            return amount;
         } catch (IgniteException ex){
-            tx.rollback();
+            //tx.rollback();
             throw ex;
-        }
+	}
+        return amount;
     }
 
     public void updateAccountBalance(int accountId, int balance) {
@@ -98,9 +99,25 @@ public class Bank extends Client {
    public Map<Integer, Integer> getAllAccounts(int endIndex,
                                                 TransactionConcurrency transactionConcurrency,
                                                 TransactionIsolation transactionIsolation) {
+       Map<Integer, Integer> accounts;
+	try (Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10)){
+           Set<Integer> keys = new HashSet<>();
+           for (int i = 0; i < endIndex; i++) keys.add(i);
+           accounts = accountCache.getAll(keys);
+           tx.commit();
+       }
+       catch (IgniteException ex) {
+           throw ex;
+       }
+        return accounts;
+    }
+
+
+   public Map<Integer, Integer> getAllAccounts_old(int endIndex,
+                                                TransactionConcurrency transactionConcurrency,
+                                                TransactionIsolation transactionIsolation) {
         Map<Integer, Integer> accounts;
-        Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10);
-        try {
+ 	try (Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10)){
             Set<Integer> keys = new HashSet<>();
             for (int i = 0; i < endIndex; i++) {
                 keys.add(i);
@@ -108,10 +125,8 @@ public class Bank extends Client {
             accounts = accountCache.getAll(keys);
             tx.commit();
         } catch (IgniteException ex) {
-            tx.rollback();
+           // tx.rollback();
             throw ex;
-        } finally {
-            tx.close();
         }
         return accounts;
     }
@@ -120,18 +135,15 @@ public class Bank extends Client {
                                                     TransactionConcurrency transactionConcurrency,
                                                     TransactionIsolation transactionIsolation) {
         Map<Integer, Integer> keys;
-        Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10);
-        try {
+	try (Transaction tx = ignite.transactions().txStart(transactionConcurrency, transactionIsolation, TX_TIMEOUT, 10)){
             QueryCursor<Cache.Entry<Integer, Integer>> q = accountCache.query(new ScanQuery(null));
             keys = q.getAll().stream().collect(Collectors.toMap(i -> i.getKey(), i -> i.getValue()));
             tx.commit();
         } catch (IgniteException ex) {
-            tx.rollback();
+         //   tx.rollback();
             throw ex;
-        } finally {
-            tx.close();
         }
-        return keys;
+	return keys;
     }
 
     public void destroyCache() {
