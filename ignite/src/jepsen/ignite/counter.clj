@@ -16,7 +16,7 @@
     (:import (org.apache.ignite Ignition IgniteCache)
       (clojure.lang ExceptionInfo)))
 
-(defrecord Client [conn seq config]
+(defrecord Client [conn seqn config]
            client/Client
            (open! [this test node]
                   (let [config (ignite/configure-client (:nodes test))
@@ -24,16 +24,16 @@
                        (assoc this :conn conn :config config)))
 
            (setup! [this test]
-                   (let [seq (.atomicSequence conn "JepsenSequence" 0 true)]
-                        (assoc this :seq seq)))
+                   (let [seqn (.atomicSequence conn "JepsenSequence" 0 true)]
+                        (assoc this :seqn seqn)))
 
            (invoke! [this test op]
                     (try
                       (case (:f op)
-                            :read (let [value (.get seq)]
+                            :read (let [value (.get seqn)]
                                        (assoc op :type :ok :value value))
 
-                            :add (do (.getAndIncrement seq)
+                            :add (do (.getAndIncrement seqn)
                                      (assoc op :type :ok)))))
 
            (teardown! [this test]

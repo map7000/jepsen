@@ -7,6 +7,7 @@
             [jepsen.core :as jepsen]
             [jepsen.ignite  [register :as register]
                             [bank     :as bank]
+			    [counter  :as counter]
                             [nemesis  :as nemesis]])
   (:import (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode)
            (org.apache.ignite.transactions TransactionConcurrency TransactionIsolation)))
@@ -14,6 +15,7 @@
 (def tests
   "A map of test names to test constructors."
   {"bank"     bank/test
+   "counter"  counter/test
    "register" register/test})
 
 (def cache-modes
@@ -25,10 +27,6 @@
   {"TRANSACTIONAL"          CacheAtomicityMode/TRANSACTIONAL
    "ATOMIC"                 CacheAtomicityMode/ATOMIC
    "TRANSACTIONAL_SNAPSHOT" CacheAtomicityMode/TRANSACTIONAL_SNAPSHOT})
-
-(def read-from-backups
-  {"YES" true
-   "NO"  false})
 
 (def cache-write-sync-modes
   {"FULL_SYNC"    CacheWriteSynchronizationMode/FULL_SYNC
@@ -73,9 +71,8 @@
    [nil
     "--read-from-backup ReadFromBackup"
     "Whether data can be read from backup."
-    :default  true
-    :parse-fn read-from-backups
-    :validate [identity (jc/one-of read-from-backups)]]
+    :default  false
+    :parse-fn #(Boolean/valueOf %)]
    [nil
     "--transaction-concurrency TransactionConcurrency"
     "Which transaction concurrency control to use."

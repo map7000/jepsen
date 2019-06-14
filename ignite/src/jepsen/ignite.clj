@@ -167,11 +167,11 @@
 (defn generator
   [operations time-limit]
   (->> (gen/mix operations)
-       (gen/stagger 1/10)
+       (gen/stagger 1)
        (gen/nemesis
-        (gen/seq (cycle [(gen/sleep 5)
+        (gen/seq (cycle [(gen/sleep 40)
           {:type :info, :f :start}
-          (gen/sleep 3)
+          (gen/sleep 10)
           {:type :info, :f :stop}])))
        (gen/time-limit time-limit)))
 
