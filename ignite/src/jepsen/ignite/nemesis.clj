@@ -18,17 +18,11 @@
 (def partition-halves
   (nemesis/partition-halves))
 
-(def majorities-ring
-  (nemesis/majorities-ring))
-
 (def partition-random-node
   (nemesis/partition-random-node))
 
 (def partition-majorities-ring
   (nemesis/partition-majorities-ring))
-
-(def bridge
-  (nemesis/bridge))
 
 (def clock-scrambler
   (nemesis/clock-scrambler 10))

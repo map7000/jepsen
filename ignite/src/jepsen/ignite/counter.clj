@@ -20,12 +20,11 @@
            client/Client
            (open! [this test node]
                   (let [config (ignite/configure-client (:nodes test))
-                        conn (Ignition/start (.getCanonicalPath config))]
-                       (assoc this :conn conn :config config)))
+                        conn (Ignition/start (.getCanonicalPath config))
+                        seqn (.atomicSequence conn "JepsenSequence" 0 true)]
+                       (assoc this :conn conn :config config :seqn seqn)))
 
-           (setup! [this test]
-                   (let [seqn (.atomicSequence conn "JepsenSequence" 0 true)]
-                        (assoc this :seqn seqn)))
+           (setup! [this test])
 
            (invoke! [this test op]
                     (try

@@ -47,12 +47,9 @@
    "partition-halves"        nemesis/partition-halves
    "partition-random-node"   nemesis/partition-random-node
    "partition-random-halves" nemesis/partition-random-halves
-   "majorities-ring"         nemesis/majorities-ring
    "partition-majorities-ring" nemesis/partition-majorities-ring
    "clock-scrambler"         nemesis/clock-scrambler
-   "node-start-stopper"      nemesis/node-start-stopper
-   "bridge"                  nemesis/bridge
-   ""})
+   "node-start-stopper"      nemesis/node-start-stopper})
 
 (def opt-spec
   "Command line options for tools.cli"
