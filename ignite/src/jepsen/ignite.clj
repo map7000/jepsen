@@ -105,7 +105,7 @@
     (str/replace "##addresses##" (clojure.string/join "\n" (map #(str "\t<value>" % ":47500..47509</value>") addresses)))
     (str/replace "##instancename##" (str (UUID/randomUUID)))
     (str/replace "##clientmode##" (str client-mode))
-    (str/replace "##nodeaddress##" node)
+    ;(str/replace "##nodeaddress##" (str "<property name=\"localAddress\" value=\""node"\"/>"))
     (str/replace "##pds##" pds)))
 
 (defn configure-server [addresses node pds]
