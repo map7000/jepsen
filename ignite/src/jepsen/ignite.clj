@@ -99,23 +99,24 @@
     (c/exec :rm :-rf server-dir))
   (info node "Apache Ignite nuked"))
 
-(defn configure [addresses client-mode pds]
+(defn configure [addresses client-mode pds node]
   "Creates a config file."
   (-> (slurp "resources/apache-ignite.xml.tmpl")
     (str/replace "##addresses##" (clojure.string/join "\n" (map #(str "\t<value>" % ":47500..47509</value>") addresses)))
     (str/replace "##instancename##" (str (UUID/randomUUID)))
     (str/replace "##clientmode##" (str client-mode))
+    (str/replace "##nodeaddress##" node)
     (str/replace "##pds##" pds)))
 
 (defn configure-server [addresses node pds]
   "Creates a server config file and uploads it to the given node."
-  (c/exec :echo (configure addresses false pds) :> (str server-dir "server-ignite-" node ".xml")))
+  (c/exec :echo (configure addresses false pds node) :> (str server-dir "server-ignite-" node ".xml")))
 
-(defn configure-client [addresses pds]
+(defn configure-client [addresses pds node]
   "Creates a client config file."
   (let [config-file (File/createTempFile "jepsen-ignite-config" ".xml")
         config-file-path (.getCanonicalPath config-file)]
-    (spit config-file-path (configure addresses true pds))
+    (spit config-file-path (configure addresses true pds node))
      config-file))
 
 (defn db
@@ -169,9 +170,9 @@
   (->> (gen/mix operations)
        (gen/stagger 1/10)
        (gen/nemesis
-        (gen/seq (cycle [(gen/sleep 5)
+        (gen/seq (cycle [(gen/sleep 10)
           {:type :info, :f :start}
-          (gen/sleep 1)
+          (gen/sleep 3)
           {:type :info, :f :stop}])))
        (gen/time-limit time-limit)))
 

@@ -24,7 +24,8 @@
 (def cache-atomicity-modes
   {"TRANSACTIONAL"          CacheAtomicityMode/TRANSACTIONAL
    "ATOMIC"                 CacheAtomicityMode/ATOMIC
-   "TRANSACTIONAL_SNAPSHOT" CacheAtomicityMode/TRANSACTIONAL_SNAPSHOT})
+   ;;   "TRANSACTIONAL_SNAPSHOT" CacheAtomicityMode/TRANSACTIONAL_SNAPSHOT
+   })
 
 (def read-from-backups
   {"YES" true
