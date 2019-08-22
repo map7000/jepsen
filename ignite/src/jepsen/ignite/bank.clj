@@ -13,7 +13,7 @@
               [knossos.op :as op])
     (:import client.BankSql
       (org.apache.ignite.transactions TransactionTimeoutException)
-      (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode) (java.client BankSql)))
+      (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode)))
 
 (def accounts 10)
 (def account-balance 100)

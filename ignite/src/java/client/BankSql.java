@@ -1,4 +1,4 @@
-package java.client;
+package client;
 
 import java.util.ArrayList;
 import java.util.HashSet;

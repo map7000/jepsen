@@ -1,4 +1,4 @@
-package java.client;
+package client;
 
 import java.client.Client;
 import org.apache.ignite.IgniteCache;
