@@ -105,7 +105,7 @@ public class BankSql extends Client {
         cache.query(updateQuery.setArgs(balance, accountId));
     }
 
-    public int getAccountBalance(int accountId) {
+    public int getBalance(int accountId) {
         FieldsQueryCursor cursor = cache.query(selectQuery.setArgs(accountId));
         Iterator<ArrayList<Integer>> iterator = cursor.iterator();
         Integer result = null;
