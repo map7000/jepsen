@@ -1,4 +1,4 @@
-package client;
+package java.client;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;

@@ -1,5 +1,6 @@
-package client;
+package java.client;
 
+import java.client.Client;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.cache.CacheAtomicityMode;
@@ -132,6 +133,10 @@ public class Bank extends Client {
             tx.close();
         }
         return keys;
+    }
+
+    public void createAccountBalance(int accountId, int balance){
+        updateAccountBalance(accountId, balance);
     }
 
     public void destroyCache() {

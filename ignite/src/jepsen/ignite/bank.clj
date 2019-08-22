@@ -1,6 +1,6 @@
 (ns jepsen.ignite.bank
-  "Simulates transfers between bank accounts"
-  (:refer-clojure :exclude [test])
+    "Simulates transfers between bank accounts"
+    (:refer-clojure :exclude [test])
     (:require [clojure.tools.logging   :refer :all]
               [jepsen [ignite          :as ignite]
                       [checker         :as checker]
@@ -11,9 +11,9 @@
               [jepsen.checker.timeline :as timeline]
               [knossos.model           :as model]
               [knossos.op :as op])
-    (:import client.Bank
-              (org.apache.ignite.transactions TransactionTimeoutException)
-              (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode)))
+    (:import client.BankSql
+      (org.apache.ignite.transactions TransactionTimeoutException)
+      (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode) (java.client BankSql)))
 
 (def accounts 10)
 (def account-balance 100)
@@ -59,7 +59,7 @@
   client/Client
   (open! [this test node]
     (let [ignite-config-file (ignite/configure-client (:nodes test) (:pds test) node)
-          conn               (Bank. (.getCanonicalPath ignite-config-file))]
+          conn               (BankSql. (.getCanonicalPath ignite-config-file))]
       (.setAccountCache
        conn
        (:atomicity-mode   cache-config)
@@ -73,7 +73,7 @@
       (when (compare-and-set! cache-initialised? false true)
         (dotimes [i accounts]
           (info "Creating account" i)
-          (.updateAccountBalance conn i account-balance)))))
+          (.createAccountBalance conn i account-balance)))))
   (invoke! [_ test op]
     (try
       (case (:f op)
