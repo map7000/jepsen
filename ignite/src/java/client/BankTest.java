@@ -1,4 +1,4 @@
-package java.client;
+package client;
 
 public interface BankTest {
 
