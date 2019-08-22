@@ -12,7 +12,7 @@ import org.apache.ignite.cache.query.FieldsQueryCursor;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
 
 public class BankSql extends Client {
-    private IgniteCache<Integer, Integer> accountCache;
+    private IgniteCache<Integer, Integer> cache;
     private static final String CACHE_NAME = Bank.class.getSimpleName();
     SqlFieldsQuery createQuery = new SqlFieldsQuery(
         "CREATE TABLE ACCOUNTS(id int PRIMARY KEY, balance int) WITH \"TEMPLATE=PARTITIONED, BACKUPS=3, ATOMICITY=TRANSACTIONAL, WRITE_SYNCHRONIZATION_MODE=FULL_ASYNC\"");
@@ -23,7 +23,7 @@ public class BankSql extends Client {
     SqlFieldsQuery updateQuery = new SqlFieldsQuery("UPDATE ACCOUNTS SET balance = ? WHERE id = ?");
     SqlFieldsQuery getAllQuery = new SqlFieldsQuery("SELECT balance FROM ACCOUNTS");
 
-    public Bank(String igniteConfig) {
+    public BankSql(String igniteConfig) {
         super(igniteConfig);
     }
 
@@ -38,7 +38,7 @@ public class BankSql extends Client {
         cfg.setWriteSynchronizationMode(writeSynchronizationMode);
         cfg.setReadFromBackup(readFromBackup);
         cfg.setBackups(backups);
-        accountCache = ignite.getOrCreateCache(cfg);
+        cache = ignite.getOrCreateCache(cfg);
         createQuery.setSchema("PUBLIC");
         selectQuery.setSchema("PUBLIC");
         insertQuery.setSchema("PUBLIC");
@@ -90,11 +90,11 @@ public class BankSql extends Client {
     }
 
     public void updateAccountBalance(int accountId, int balance) {
-        accountCache.query(updateQuery.setArgs(balance, accountId));
+        cache.query(updateQuery.setArgs(balance, accountId));
     }
 
     public int getAccountBalance(int accountId) {
-        FieldsQueryCursor cursor = accountCache.query(selectQuery.setArgs(accountId));
+        FieldsQueryCursor cursor = cache.query(selectQuery.setArgs(accountId));
         Iterator<ArrayList<Integer>> iterator = cursor.iterator();
         Integer result = null;
         if (iterator.hasNext()) {
