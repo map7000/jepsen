@@ -1,19 +1,19 @@
 (ns jepsen.ignite.bank
-    "Simulates transfers between bank accounts"
-    (:refer-clojure :exclude [test])
-    (:require [clojure.tools.logging   :refer :all]
-              [jepsen [ignite          :as ignite]
-                      [checker         :as checker]
-                      [client          :as client]
-                      [nemesis         :as nemesis]
-                      [generator       :as gen]]
-              [clojure.core.reducers :as r]
-              [jepsen.checker.timeline :as timeline]
-              [knossos.model           :as model]
-              [knossos.op :as op])
-    (:import client.BankSql
-      (org.apache.ignite.transactions TransactionTimeoutException)
-      (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode)))
+  "Simulates transfers between bank accounts"
+  (:refer-clojure :exclude [test])
+  (:require [clojure.tools.logging :refer :all]
+   [jepsen [ignite :as ignite]
+    [checker :as checker]
+    [client :as client]
+    [nemesis :as nemesis]
+    [generator :as gen]]
+   [clojure.core.reducers :as r]
+   [jepsen.checker.timeline :as timeline]
+   [knossos.model :as model]
+   [knossos.op :as op])
+  (:import client.BankSql
+   (org.apache.ignite.transactions TransactionTimeoutException)
+   (org.apache.ignite.cache CacheMode CacheAtomicityMode CacheWriteSynchronizationMode)))
 
 (def accounts 10)
 (def account-balance 100)
@@ -27,27 +27,27 @@
                         (r/filter op/ok?)
                         (r/filter #(= :read (:f %)))
                         (r/map (fn [op]
-                          (let [balances (:value op)]
-                            (cond
-                              (not= accounts (count (keys balances)))
-                              {:type :wrong-n
-                               :expected accounts
-                               :found    (count (keys balances))
-                               :op       op}
+                                 (let [balances (:value op)]
+                                   (cond
+                                     (not= accounts (count (keys balances)))
+                                     {:type     :wrong-n
+                                      :expected accounts
+                                      :found    (count (keys balances))
+                                      :op       op}
 
-                              (not= (* accounts account-balance) (reduce + (vals balances)))
-                              {:type :wrong-total
-                               :expected (* accounts account-balance)
-                               :found   (reduce + (vals balances))
-                               :op       op}
+                                     (not= (* accounts account-balance) (reduce + (vals balances)))
+                                     {:type     :wrong-total
+                                      :expected (* accounts account-balance)
+                                      :found    (reduce + (vals balances))
+                                      :op       op}
 
-                              (some neg? (vals balances))
-                              {:type     :negative-value
-                               :found    (vals balances)
-                               :op       op}))))
-                       (r/filter identity)
-                       (into []))]
-        {:valid? (empty? bad-reads)
+                                     (some neg? (vals balances))
+                                     {:type  :negative-value
+                                      :found (vals balances)
+                                      :op    op}))))
+                        (r/filter identity)
+                        (into []))]
+        {:valid?    (empty? bad-reads)
          :bad-reads bad-reads}))))
 
 (defrecord BankClient
@@ -59,15 +59,16 @@
   client/Client
   (open! [this test node]
     (let [ignite-config-file (ignite/configure-client (:nodes test) (:pds test) node)
-          conn               (BankSql. (.getCanonicalPath ignite-config-file))]
+          conn (BankSql. (.getCanonicalPath ignite-config-file))]
+     (info "conn")
       (.setAccountCache
-       conn
-       (:atomicity-mode   cache-config)
-       (:cache-mode       cache-config)
-       (:write-sync-mode  cache-config)
-       (:read-from-backup cache-config)
-       (:backups          cache-config))
-       (assoc this :conn conn)))
+        conn
+        (:atomicity-mode cache-config)
+        (:cache-mode cache-config)
+        (:write-sync-mode cache-config)
+        (:read-from-backup cache-config)
+        (:backups cache-config))
+      (assoc this :conn conn)))
   (setup! [this test]
     (locking cache-initialised?
       (when (compare-and-set! cache-initialised? false true)
@@ -80,7 +81,7 @@
         :read (let [value (.getAllAccounts conn accounts (:concurrency transaction-config) (:isolation transaction-config))]
                 (assoc op :type :ok, :value value))
         :transfer (let [{:keys [from to amount]} (:value op)
-                    amount (.transferMoney conn from to (:concurrency transaction-config) (:isolation transaction-config))]
+                        amount (.transferMoney conn from to (:concurrency transaction-config) (:isolation transaction-config))]
                     (assoc op :type :ok)))
       (catch Exception e (info (.getMessage e)) (assoc op :type :fail, :error :exception))))
   (teardown! [this test])
@@ -103,10 +104,10 @@
 (def bank-diff-transfer
   "Like transfer, but only transfers between *different* accounts."
   (gen/filter
-  (fn [op]
-    (not= (-> op :value :from)
-          (-> op :value :to)))
-  bank-transfer))
+    (fn [op]
+      (not= (-> op :value :from)
+        (-> op :value :to)))
+    bank-transfer))
 
 (defn test
   [opts]

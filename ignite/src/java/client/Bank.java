@@ -1,6 +1,5 @@
 package client;
 
-import java.client.Client;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteException;
 import org.apache.ignite.cache.CacheAtomicityMode;

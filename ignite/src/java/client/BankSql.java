@@ -25,7 +25,7 @@ import org.apache.ignite.cache.query.QueryCursor;
 
 public class BankSql extends Client {
     private IgniteCache<Integer, Integer> cache;
-    private static final String CACHE_NAME = Bank.class.getSimpleName();
+    private static final String CACHE_NAME = BankSql.class.getSimpleName();
     SqlFieldsQuery createQuery = new SqlFieldsQuery(
         "CREATE TABLE ACCOUNTS(id int PRIMARY KEY, balance int) WITH \"TEMPLATE=PARTITIONED, BACKUPS=3, ATOMICITY=TRANSACTIONAL, WRITE_SYNCHRONIZATION_MODE=FULL_ASYNC\"");
     SqlFieldsQuery selectQuery = new SqlFieldsQuery("SELECT balance FROM ACCOUNTS WHERE id = ?");
